@@ -1,0 +1,19 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    title my bookshelf
+    link(rel="stylesheet", href="/css/style.css")
+
+  body
+    h1 My Bookshelf!
+
+    div.bookshelf
+      if books.length === 0
+        p no books in the bookshelf yet.
+      else
+        each book in books
+          div.book-card
+            h2.book-title= book.title
+            p.book-status Status: #{book.status}
+            p Author's ID: #{book.authorId}

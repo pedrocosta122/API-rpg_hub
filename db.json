@@ -1,0 +1,35 @@
+{
+  "books": [
+    {
+      "id": "a8b029eb-fb37-474c-b4d1-02070eeeb8d9",
+      "title": "O Guia do Mochileiro das Galáxias",
+      "authorId": "123"
+    },
+    {
+      "id": "8595a9fa-d0aa-4e37-8d39-14bc508f3a81",
+      "title": "O Guia do Mochileiro das Galáxias",
+      "authorId": "123"
+    },
+    {
+      "id": "f5e9241a-da9d-446c-acce-bc5c803048f5",
+      "title": "A Sociedade do Anel",
+      "authorId": "6b6ec65d-5d2e-4a0e-9599-808031278f7f"
+    }
+  ],
+  "reading": [],
+  "authors": [
+    {
+      "id": "6b6ec65d-5d2e-4a0e-9599-808031278f7f",
+      "name": "J.R.R. Tolkien"
+    }
+  ],
+  "readings": [
+    {
+      "id": "cb25e67b-cfac-48ba-b1f9-4dd51028afd2",
+      "bookId": "f5e9241a-da9d-446c-acce-bc5c803048f5",
+      "currentPage": 150,
+      "totalPages": 423,
+      "status": "Lendo"
+    }
+  ]
+}
