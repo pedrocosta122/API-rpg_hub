@@ -5,9 +5,8 @@ import WebController from '../controllers/web_controller.js';
 
 const router = Router();
 
-router.get('/', WebController.renderBookshelf);
+router.get('/bookshelf', WebController.renderBookshelf);
 
-/*
 router.get('/', BookController.listAll);
 router.get('/:id', BookController.getById);
 
@@ -15,5 +14,5 @@ router.post('/', bookValidationRules , BookController.create);
 router.put('/:id', bookValidationRules, BookController.update);
 
 router.delete('/:id', BookController.delete);
-*/
+
 export default router;

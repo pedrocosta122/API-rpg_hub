@@ -2,18 +2,72 @@ doctype html
 html(lang="en")
   head
     meta(charset="UTF-8")
-    title my bookshelf
+    title= title
     link(rel="stylesheet", href="/css/style.css")
+    script(src="/js/bookshelf.js" defer)
 
   body
-    h1 My Bookshelf!
+    h1= message
+    
+    div.add-author-section
+      h2 Authors
+      form#add-author-form
+        h4 Add Author
+        input(type="text" id="authorName" placeholder="Author name" required)
 
+        button(type="submit") Create Author 
+      
+      form#remove-author-form
+        h4 Remove Author
+        select(id="authorToRemove" required)
+          option(value="" disabled selected) Choose an Author
+          each author in authors 
+            option(value=author.id)= author.name 
+
+        button(type="submit" class="btn-delete") Remove Author
+
+
+    div.add-book-section
+      h2 Add New Book
+      form#add-book-form
+        input(type="text" id="title" placeholder="Book title" required)
+
+        select(id="authorId" required)
+          option(value="" disabled selected) Choose an Author
+          each author in authors
+            option(value=author.id)= author.name
+
+        button(type="submit") Save Book
+      
     div.bookshelf
       if books.length === 0
-        p no books in the bookshelf yet.
+        p= noBooks
       else
         each book in books
-          div.book-card
-            h2.book-title= book.title
-            p.book-status Status: #{book.status}
-            p Author's ID: #{book.authorId}
+          div.book-card(id=`book-${book.id}`)
+          
+            //- 1. CAIXA DE VISUALIZAÇÃO
+            div(id=`view-container-${book.id}`)
+              h2.book-title= book.title
+              p.book-status Status: #{book.readingStatus}
+              p.book-author Author's Name: #{book.authorName}
+              p.book-progress Pages: #{book.currentPage} / #{book.totalPages}
+
+              button.btn-edit(onclick=`toggleEdit('${book.id}')`) Edit
+              button.btn-delete(onclick=`deleteBook('${book.id}')`) Delete Book
+
+            //- 2. CAIXA DE EDIÇÃO (Alinhada exatamente embaixo da div de visualização)
+            div.edit-form(id=`edit-container-${book.id}` style="display: none;")
+              h3 Edit Book
+              input(type="text" id=`edit-title-${book.id}` value=book.title)
+              input(type="number" id=`edit-current-${book.id}` value=book.currentPage placeholder="Current Page")
+              input(type="number" id=`edit-total-${book.id}` value=book.totalPages placeholder="Total pages")
+  
+              select(id=`edit-status-${book.id}`)
+                option(value="To Read" selected=book.readingStatus==="To Read") To Read 
+                option(value="Reading" selected=book.readingStatus==="Reading") Reading 
+                option(value="Read" selected=book.readingStatus==="Read") Read 
+                option(value="Dropped" selected=book.readingStatus==="Dropped") Dropped 
+
+              button.btn-save(onclick=`updateBook('${book.id}', '${book.readingId}')`) Save
+              button.btn-cancel(onclick=`toggleEdit('${book.id}')`) Cancel

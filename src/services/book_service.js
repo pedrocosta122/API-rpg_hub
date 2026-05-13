@@ -1,8 +1,18 @@
 import BookRepository from "../repositories/book_repository.js";
+import ReadingRepository from "../repositories/reading_repository.js";
 
 class BookService {
     static async createBook (bookData) {
         const newBook = await BookRepository.create(bookData);
+
+        const readingData = {
+            bookId: newBook.id,
+            totalPages: bookData.totalPages || 0,
+            currentPage: bookData.currentPage || 0,
+            status: "To Read"
+        }
+
+        await ReadingRepository.create(readingData);
 
         return newBook;
     }
@@ -38,6 +48,8 @@ class BookService {
     }
 
     static async deleteBook (id) {
+        await ReadingRepository.deleteByBookId(id);
+
         const isDeleted = await BookRepository.delete(id);
 
         if (!isDeleted) {

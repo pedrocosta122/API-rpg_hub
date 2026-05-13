@@ -1,35 +1,40 @@
 {
   "books": [
     {
-      "id": "a8b029eb-fb37-474c-b4d1-02070eeeb8d9",
-      "title": "O Guia do Mochileiro das Galáxias",
-      "authorId": "123"
+      "id": "d99a0d89-9ab6-4504-8f8b-319419647546",
+      "title": "Coraline",
+      "authorId": "d25c854c-5a78-484d-83c1-7f51a093141a"
     },
     {
-      "id": "8595a9fa-d0aa-4e37-8d39-14bc508f3a81",
-      "title": "O Guia do Mochileiro das Galáxias",
-      "authorId": "123"
-    },
-    {
-      "id": "f5e9241a-da9d-446c-acce-bc5c803048f5",
-      "title": "A Sociedade do Anel",
-      "authorId": "6b6ec65d-5d2e-4a0e-9599-808031278f7f"
+      "id": "60982aca-f465-4f93-bc37-4087850c1a02",
+      "title": "1984",
+      "authorId": "5d4126e5-a46b-4ce2-a85e-ab6296cf3998"
     }
   ],
-  "reading": [],
   "authors": [
     {
-      "id": "6b6ec65d-5d2e-4a0e-9599-808031278f7f",
-      "name": "J.R.R. Tolkien"
+      "id": "d25c854c-5a78-484d-83c1-7f51a093141a",
+      "name": "Neil Gaiman"
+    },
+    {
+      "id": "5d4126e5-a46b-4ce2-a85e-ab6296cf3998",
+      "name": "George Orwell"
     }
   ],
   "readings": [
     {
-      "id": "cb25e67b-cfac-48ba-b1f9-4dd51028afd2",
-      "bookId": "f5e9241a-da9d-446c-acce-bc5c803048f5",
-      "currentPage": 150,
-      "totalPages": 423,
-      "status": "Lendo"
+      "id": "524dccd3-9cdb-4b5d-9de3-f904c385c0cf",
+      "bookId": "d99a0d89-9ab6-4504-8f8b-319419647546",
+      "currentPage": 87,
+      "totalPages": 224,
+      "status": "Reading"
+    },
+    {
+      "id": "c106d5f9-e10e-4568-8378-1b0d5a694f1f",
+      "bookId": "60982aca-f465-4f93-bc37-4087850c1a02",
+      "currentPage": 416,
+      "totalPages": 416,
+      "status": "Read"
     }
   ]
 }

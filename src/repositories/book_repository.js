@@ -34,7 +34,7 @@ class BookRepository {
 
         const index = db.data.books.findIndex(book => book.id === id);
 
-        if (!index){
+        if (index === -1){
             return null;
         }
 
