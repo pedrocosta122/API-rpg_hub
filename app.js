@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import bookRoutes from './src/routers/book_routes.js';
 import authorRoutes from './src/routers/author_routes.js';
 import readingRoutes from './src/routers/reading_routes.js';
+import userRoutes from './src/routers/user_routes.js';
 
 import { globalErrorHandler } from './src/middlewares/error_middleware.js';
 import logger from './src/middlewares/logger_middleware.js';
@@ -26,6 +27,7 @@ app.use(express.json());
 app.use('/api/books', bookRoutes);
 app.use('/api/authors', authorRoutes);
 app.use('/api/readings', readingRoutes);
+app.use('/api/users', userRoutes);
 
 app.use(globalErrorHandler);
 
