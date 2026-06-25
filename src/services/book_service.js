@@ -1,24 +1,18 @@
 import BookRepository from "../repositories/book_repository.js";
-import ReadingRepository from "../repositories/reading_repository.js";
 
 class BookService {
-    static async createBook (bookData) {
-        const newBook = await BookRepository.create(bookData);
-
-        const readingData = {
-            bookId: newBook.id,
-            totalPages: bookData.totalPages || 0,
-            currentPage: bookData.currentPage || 0,
-            status: "To Read"
+    static async createBook (bookData, currentUser) {
+        const bookWithOwner = {
+            ...bookData,
+            userId: currentUser.id
         }
-
-        await ReadingRepository.create(readingData);
+        const newBook = await BookRepository.create(bookWithOwner);
 
         return newBook;
     }
 
-    static async listAllBooks () {
-        const books = await BookRepository.listAll();
+    static async getAllBooks () {
+        const books = await BookRepository.getAll();
 
         return books;
     }
@@ -35,7 +29,21 @@ class BookService {
         return book;
     }
 
-    static async updateBook (id, updateData) {
+    static async updateBook (id, updateData, currentUser) {
+        const book = await BookRepository.getById(id);
+
+        if(!book) {
+            const error = new Error('Livro não encontrado');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        if(currentUser.role !== 'admin' && book.userId.toString() !== currentUser.id.toString()) {
+            const error = new Error('Acesso negado. Apenas o dono ou um administrador pode alterar um livro')
+            error.statusCode = 403;
+            throw error;
+        }
+
         const updatedBook = await BookRepository.update(id, updateData);
 
         if(!updatedBook){
@@ -47,8 +55,22 @@ class BookService {
         return updatedBook;
     }
 
-    static async deleteBook (id) {
-        await ReadingRepository.deleteByBookId(id);
+    static async deleteBook (id, currentUser) {
+        const book = await BookRepository.getById(id);
+
+        if(!book) {
+            const error = new Error('Livro não encontrado');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        if(currentUser.role !== 'admin') {
+            if(!book.userId || book.userId.toString() !== currentUser.id.toString()) {
+                const error = new Error('Acesso negado. Apenas o dono ou um administrador pode alterar este livro.');
+                error.statusCode = 403;
+                throw error;
+            }
+        } 
 
         const isDeleted = await BookRepository.delete(id);
 

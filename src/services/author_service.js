@@ -7,8 +7,8 @@ class AuthorService {
         return newAuthor;
     }
 
-    static async listAllAuthors() {
-        const authors = await AuthorRepository.listAll();
+    static async getAllAuthors() {
+        const authors = await AuthorRepository.getAll();
 
         return authors;
     }

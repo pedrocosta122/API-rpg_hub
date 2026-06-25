@@ -1,5 +1,3 @@
-import db from "../config/db.js";
-import { v4 as uuidv4 } from 'uuid';
 
 class AuthorRepository {
     static async create(authorData) {
@@ -16,7 +14,7 @@ class AuthorRepository {
         return newAuthor;
     }
 
-    static async listAll() {
+    static async getAll() {
         await db.read();
         
         return db.data.authors;

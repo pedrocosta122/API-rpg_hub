@@ -1,69 +1,78 @@
-import db from "../config/db.js";
-import { v4 as uuidv4 } from 'uuid';
+import { getDB } from '../config/database.js';
+import { ObjectId, ReturnDocument } from 'mongodb';
+
+import UserDTO from '../dtos/user_dto.js';
 
 class UserRepository {
     static async create(userData) {
-        await db.read();
+        const db = getDB();
+        const collection = db.collection('users');
 
         const newUser = {
-            id: uuidv4(),
             name: userData.name,
             email: userData.email,
-            password: userData.password
+            password: userData.password,
+            role: userData.role || 'user'
         }
 
-        db.data.users.push(newUser);
-        await db.write();
+        const result = await collection.insertOne(newUser);
 
-        return newUser;
+        return {
+            id: result.insertedId.toString(),
+            name: newUser.name,
+            email: newUser.email,
+            role: newUser.role
+        };
     }
 
-    static async listAll() {
-        await db.read();
+    static async getByEmail(email) {
+        const db = getDB();
+        const collection = db.collection('users');
 
-        return db.data.users;
+        const user = await collection.findOne({ email: email });
+
+        return user;
+    }
+
+    static async getAll() {
+        const db = getDB();
+        const collection = db.collection('users');
+
+        const users = await collection.find().toArray();
+
+        return users.map(user => new UserDTO(user));
     }
 
     static async getById(id) {
-        await db.read();
+        const db = getDB();
+        const collection = db.collection('users');
 
-        return db.data.users.find(user => user.id === id);
+        const user = await collection.findOne({ _id: new ObjectId(id) });
+
+        if(!user) return null;
+
+        return new UserDTO(user);
     }
 
     static async update(id, updateData) {
-        await db.read();
+        const db = getDB();
+        const collection = db.collection('users');
 
-        const index = db.data.users.find(user => user.id === id);
+        const result = await collection.updateOne(
+            { _id: new ObjectId(id) },
+            { $set: updateData }
+        );
 
-        if(!index) {
-            return null
-        }
-
-        db.data.users[index] = {
-            ...db.data.users[index],
-            ...updateData,
-            id: id
-        };
-
-        await db.write();
-
-        return db.data.users[index];
+        return result.modifiedCount > 0;
     }
 
     static async delete(id) {
-        await db.read;
+        const db = getDB();
+        const collection = db.collection('users');
+        
+        const result = await collection.deleteOne({ _id: new ObjectId(id) });
 
-        const originalLength = db.data.users.length;
-
-        db.data.users = db.data.users.filter(user => user.id !== id);
-
-        if(db.data.users.length === originalLength) {
-            return false;
-        }
-
-        await db.write();
-
-        return true;
+        return result.deletedCount > 0;
     }
 };
 

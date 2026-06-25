@@ -1,68 +1,71 @@
-import db from "../config/db.js";
-import { v4 as uuidv4 } from 'uuid';
+import { getDB } from '../config/database.js';
+import { ObjectId, ReturnDocument } from 'mongodb';
 
 class BookRepository {
     static async create(bookData){
-        await db.read();
+        const db = getDB();
+        const collection = db.collection('books');
 
         const newBook = {
-            id: uuidv4(),
             title: bookData.title,
-            authorId: bookData.authorId,
-        }
+            publisher: bookData.publisher,
+            year: bookData.year,
+            userId: bookData.userId
+        };
 
-        db.data.books.push(newBook);
-        await db.write();
+        const result = await collection.insertOne(newBook);
 
-        return newBook;
+        return { id: result.insertedId.toString(), ...newBook };
     }
 
-    static async listAll(){
-        await db.read();
+    static async getAll(){
+        const db = getDB();
+        const collection = db.collection('books');
 
-        return db.data.books;
+        const books = await collection.find().toArray();
+
+        return books.map(({ _id, ...rest }) => ({
+            id: _id.toString(),
+            ...rest
+        }));
     }
 
     static async getById(id){
-        await db.read();
+        const db = getDB();
+        const collection = db.collection('books');
 
-        return db.data.books.find(book => book.id === id);
+        if(!ObjectId.isValid(id)) return null;
+
+        const book = await collection.findOne({ _id: new ObjectId(id) });
+
+        return book ? { id: book._id.toString(), ...book } : null;
     }
 
     static async update(id, updateData){
-        await db.read();
+        if(!ObjectId.isValid(id)) return null;
 
-        const index = db.data.books.findIndex(book => book.id === id);
+        const db = getDB();
+        const collection = db.collection('books');
 
-        if (index === -1){
-            return null;
-        }
+        await collection.updateOne(
+            { _id: new ObjectId(id) },
+            { $set: updateData }
+        );
 
-        db.data.books[index] = {
-            ...db.data.books[index],
-            ...updateData,
-            id: id
-        }
+        const updatedBook = await collection.findOne({ _id: new ObjectId(id) });
 
-        await db.write();
-
-        return db.data.books[index];
+        return updatedBook;
     }
 
     static async delete(id){
-        await db.read();
+        if(!ObjectId.isValid(id)) return null;
+        
+        const db = getDB();
+        const collection = db.collection('books');
 
-        const originalLength = db.data.books.length;
+        const result = await collection.deleteOne({ _id: new ObjectId(id)});
 
-        db.data.books = db.data.books.filter(book => book.id !== id);
-
-        if(db.data.books.length === originalLength){
-            return false;
-        }
-
-        await db.write();
-
-        return true;
+        return result.deletedCount === 1;
     }
 }
 

@@ -1,7 +1,13 @@
 import app from "./app.js";
+import { connectDB } from "./src/config/database.js";
 
-const PORT = 3000;
+const PORT = process.env.PORT;
 
-app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}/api/books/bookshelf`)
+connectDB().then(() => {
+    app.listen(PORT, () => {
+        console.log(`Servidor rodando em http://localhost:${PORT}/catalogue`)
+    });
+}).catch((error) => {
+    console.error('Falha ao conectar ao servidor');
+    process.exit(1);
 });

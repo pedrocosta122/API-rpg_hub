@@ -1,22 +1,27 @@
 import BookService from "../services/book_service.js";
+import BookDTO from "../dtos/book_dto.js";
 
 class BookController {
     static async create(req, res, next) {
         try {
             const createBookData = req.body;
-            const newBookDto = await BookService.createBook(createBookData);
+            const currentUser = req.user;
+
+            const newBook = await BookService.createBook(createBookData, currentUser);
             
-            res.status(201).json(newBookDto);
+            res.status(201).json(new BookDTO(newBook));
         } catch(error) {
             next(error);
         }
     }
 
-    static async listAll(req, res, next) {
+    static async getAll(req, res, next) {
         try {
-            const books = await BookService.listAllBooks();
+            const books = await BookService.getAllBooks();
 
-            res.status(200).json(books);
+            const booksDTO = books.map(book => new BookDTO(book));
+
+            res.status(200).json(booksDTO);
         } catch(error) {
             next(error);
         }
@@ -25,9 +30,9 @@ class BookController {
     static async getById(req, res, next) {
         try {
             const { id } = req.params;
-            const bookDto = await BookService.getBookById(id);
+            const book = await BookService.getBookById(id);
 
-            res.status(200).json(bookDto);
+            res.status(200).json(new BookDTO(book));
         } catch(error) {
             next(error);
         }
@@ -37,9 +42,11 @@ class BookController {
         try {
             const { id } = req.params;
             const updateData = req.body;
-            const updateDto = await BookService.updateBook(id, updateData);
+            const currentUser = req.user;
+            
+            const updateDto = await BookService.updateBook(id, updateData, currentUser);
 
-            res.status(200).json(updateDto);
+            res.status(200).json(new BookDTO(updateDto));
         } catch(error) {
             next(error);
         }
@@ -48,8 +55,9 @@ class BookController {
     static async delete(req, res, next) {
         try {
             const { id } = req.params;
+            const currentUser = req.user;
             
-            await BookService.deleteBook(id);
+            await BookService.deleteBook(id, currentUser);
 
             res.status(204).send(); // No Content
         } catch(error) {

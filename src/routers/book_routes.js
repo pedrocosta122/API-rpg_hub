@@ -1,18 +1,19 @@
 import { Router } from 'express';
+
 import BookController from '../controllers/book_controller.js';
+
 import { bookValidationRules } from '../validators/book_validator.js';
-import WebController from '../controllers/web_controller.js';
+import authMiddleware from '../middlewares/auth_middleware.js';
+import checkRole from '../middlewares/permission_middleware.js';
+
 
 const router = Router();
 
-router.get('/bookshelf', WebController.renderBookshelf);
-
-router.get('/', BookController.listAll);
+router.get('/', BookController.getAll);
 router.get('/:id', BookController.getById);
 
-router.post('/', bookValidationRules , BookController.create);
-router.put('/:id', bookValidationRules, BookController.update);
-
-router.delete('/:id', BookController.delete);
+router.post('/', authMiddleware, bookValidationRules , BookController.create);
+router.put('/:id', authMiddleware, bookValidationRules, BookController.update);
+router.delete('/:id', authMiddleware, BookController.delete);
 
 export default router;

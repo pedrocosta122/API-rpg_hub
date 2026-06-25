@@ -1,0 +1,823 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "RPG Hub API",
+    "description": "API para gerenciamento de um catálogo de sistemas de RPG e bibliotecas pessoais de usuários",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Suporte API"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Servidor de desenvolvimento"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Token JWT obtido no login. Incluir como: Authorization: Bearer <token>"
+      }
+    },
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID único do livro (ObjectId)"
+          },
+          "title": {
+            "type": "string",
+            "description": "Título do sistema de RPG"
+          },
+          "publisher": {
+            "type": "string",
+            "description": "Editora/Publicador do sistema"
+          },
+          "year": {
+            "type": "integer",
+            "description": "Ano de publicação"
+          },
+          "userId": {
+            "type": "string",
+            "description": "ID do usuário que criou o livro no catálogo"
+          }
+        },
+        "required": ["title", "publisher"],
+        "example": {
+          "id": "507f1f77bcf86cd799439011",
+          "title": "Dungeons & Dragons 5ª Edição",
+          "publisher": "Wizards of the Coast",
+          "year": 2023,
+          "userId": "507f1f77bcf86cd799439012"
+        }
+      },
+      "BookInput": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Título do sistema de RPG"
+          },
+          "publisher": {
+            "type": "string",
+            "description": "Editora/Publicador do sistema"
+          },
+          "year": {
+            "type": "integer",
+            "description": "Ano de publicação"
+          }
+        },
+        "required": ["title"],
+        "example": {
+          "title": "Pathfinder 2ª Edição",
+          "publisher": "Paizo Publishing",
+          "year": 2023
+        }
+      },
+      "UserLibraryEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID único da entrada na biblioteca"
+          },
+          "userId": {
+            "type": "string",
+            "description": "ID do usuário dono da biblioteca"
+          },
+          "bookId": {
+            "type": "string",
+            "description": "ID do livro/sistema de RPG"
+          },
+          "bookLink": {
+            "type": "string",
+            "description": "Link para o PDF do manual (Google Drive, Dropbox, etc)"
+          },
+          "campaingNotes": {
+            "type": "string",
+            "description": "Anotações do usuário sobre house rules ou campanha"
+          }
+        },
+        "example": {
+          "id": "507f1f77bcf86cd799439013",
+          "userId": "507f1f77bcf86cd799439012",
+          "bookId": "507f1f77bcf86cd799439011",
+          "bookLink": "https://drive.google.com/file/d/...",
+          "campaingNotes": "Usamos rule variant de short rests"
+        }
+      },
+      "UserLibraryInput": {
+        "type": "object",
+        "properties": {
+          "bookId": {
+            "type": "string",
+            "description": "ID do livro/sistema a adicionar à biblioteca"
+          },
+          "bookLink": {
+            "type": "string",
+            "description": "Link para o PDF (opcional)"
+          },
+          "campaingNotes": {
+            "type": "string",
+            "description": "Anotações iniciais (opcional)"
+          }
+        },
+        "required": ["bookId"],
+        "example": {
+          "bookId": "507f1f77bcf86cd799439011",
+          "bookLink": "https://drive.google.com/file/d/...",
+          "campaingNotes": "Manuais importados - Usando house rules"
+        }
+      },
+      "UserLibraryUpdate": {
+        "type": "object",
+        "properties": {
+          "bookLink": {
+            "type": "string",
+            "description": "Novo link para o PDF"
+          },
+          "campaingNotes": {
+            "type": "string",
+            "description": "Novas anotações"
+          }
+        },
+        "example": {
+          "campaingNotes": "Atualizado com regras da última sessão"
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email do usuário"
+          },
+          "password": {
+            "type": "string",
+            "description": "Senha do usuário"
+          }
+        },
+        "required": ["email", "password"],
+        "example": {
+          "email": "usuario@example.com",
+          "password": "senha123"
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Token JWT para autenticação"
+          }
+        },
+        "example": {
+          "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Descrição do erro"
+          }
+        },
+        "example": {
+          "error": "Livro não encontrado"
+        }
+      }
+    }
+  },
+  "paths": {
+    "/books": {
+      "get": {
+        "summary": "Listar todos os sistemas de RPG",
+        "description": "Retorna a lista completa de todos os sistemas de RPG no catálogo. Sem autenticação requerida.",
+        "operationId": "getAllBooks",
+        "tags": ["Books"],
+        "responses": {
+          "200": {
+            "description": "Lista de livros retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Book"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Criar novo sistema de RPG no catálogo",
+        "description": "Cria uma novo entrada de sistema de RPG. Requer autenticação JWT. O campo userId é preenchido automaticamente com o ID do usuário autenticado.",
+        "operationId": "createBook",
+        "tags": ["Books"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Livro criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validação falhou (título obrigatório)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autenticado (token ausente ou inválido)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/books/{id}": {
+      "get": {
+        "summary": "Obter detalhes de um sistema de RPG",
+        "description": "Retorna os detalhes completos de um sistema de RPG específico. Sem autenticação requerida.",
+        "operationId": "getBookById",
+        "tags": ["Books"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID do livro/sistema",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Livro retornado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Livro não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Atualizar sistema de RPG",
+        "description": "Atualiza os dados de um sistema de RPG. Apenas o criador (dono) ou admin podem atualizar. Requer autenticação JWT.",
+        "operationId": "updateBook",
+        "tags": ["Books"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID do livro a atualizar",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Livro atualizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validação falhou",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acesso negado. Apenas o dono ou admin podem atualizar.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Livro não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Deletar um sistema de RPG",
+        "description": "Remove um sistema de RPG do catálogo. Apenas o criador (dono) ou admin podem deletar. Requer autenticação JWT.",
+        "operationId": "deleteBook",
+        "tags": ["Books"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID do livro a deletar",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Livro deletado com sucesso"
+          },
+          "401": {
+            "description": "Não autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acesso negado. Apenas o dono ou admin podem deletar.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Livro não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/library": {
+      "get": {
+        "summary": "Listar minha biblioteca de RPG",
+        "description": "Retorna todos os sistemas de RPG adicionados à biblioteca pessoal do usuário autenticado. Requer autenticação JWT.",
+        "operationId": "getUserLibrary",
+        "tags": ["User Library"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Biblioteca do usuário retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserLibraryEntry"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autenticado (token ausente ou inválido)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Adicionar sistema de RPG à minha biblioteca",
+        "description": "Adiciona um sistema de RPG à biblioteca pessoal do usuário. O campo userId é preenchido automaticamente com o ID do usuário autenticado. Requer autenticação JWT.",
+        "operationId": "addBookToLibrary",
+        "tags": ["User Library"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLibraryInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Sistema adicionado à biblioteca com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserLibraryEntry"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validação falhou (bookId obrigatório)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflito: Este sistema já está na sua biblioteca",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/library/{id}": {
+      "put": {
+        "summary": "Atualizar anotações da biblioteca",
+        "description": "Atualiza as notas de campanha ou link do PDF de um sistema na sua biblioteca. Apenas o dono pode atualizar. Requer autenticação JWT.",
+        "operationId": "updateLibraryEntry",
+        "tags": ["User Library"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID da entrada na biblioteca",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLibraryUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Entrada atualizada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserLibraryEntry"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acesso negado. Apenas o dono pode atualizar suas anotações.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Entrada na biblioteca não encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remover sistema de RPG da biblioteca",
+        "description": "Remove um sistema de RPG da biblioteca pessoal do usuário. Apenas o dono pode remover. Requer autenticação JWT.",
+        "operationId": "removeBookFromLibrary",
+        "tags": ["User Library"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID da entrada na biblioteca a remover",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sistema removido da biblioteca com sucesso"
+          },
+          "401": {
+            "description": "Não autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acesso negado. Apenas o dono pode remover da sua biblioteca.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Entrada na biblioteca não encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "summary": "Registrar novo usuário",
+        "description": "Cria uma nova conta de usuário no sistema.",
+        "operationId": "registerUser",
+        "tags": ["Authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Nome do usuário"
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "Email único do usuário"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "Senha do usuário (será hasheada)"
+                  }
+                },
+                "required": ["name", "email", "password"],
+                "example": {
+                  "name": "João Silva",
+                  "email": "joao@example.com",
+                  "password": "senha123"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuário registrado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validação falhou (campos obrigatórios ou email inválido)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflito: Email já está registrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Fazer login de usuário",
+        "description": "Autentica um usuário e retorna um token JWT para uso nas requisições protegidas.",
+        "operationId": "loginUser",
+        "tags": ["Authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Login bem-sucedido. Token JWT retornado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validação falhou (email ou senha ausentes)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciais inválidas (email ou senha incorretos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

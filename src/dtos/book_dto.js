@@ -1,12 +1,10 @@
 export class BookDTO {
-    constructor(book, author, reading) {
-        this.id = book.id;
+    constructor(book, author) {
+        this.id = book._id ? book._id.toString() : book.id;
         this.title = book.title;
-        this.authorName = author ? author.name : 'Unknown';
-        this.readingStatus = reading ? reading.status : 'To Read';
-        this.currentPage = reading ? reading.currentPage : 0;
-        this.totalPages = reading ? reading.totalPages : 0;
-        this.readingId = reading ? reading.id : null;
+        this.publisher = book.publisher;
+        this.year = book.year;
+        this.userId = book.userId ? book.userId.toString() : undefined;
     }
 }
 

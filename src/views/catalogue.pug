@@ -1,0 +1,26 @@
+doctype html
+html(lang="pt-BR")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title= title
+    
+    //- Conectando o CSS
+    link(rel="stylesheet", href="/css/style.css")
+    
+    //- Conectando o JS
+    script(src="/js/catalogo.js" defer)
+  
+  body
+    div.container
+      h1= message
+      
+      if books.length === 0
+        p.empty-message Nenhum livro encontrado no catálogo do sistema.
+      else
+        div.grid-container
+          each book in books
+            div.book-card
+              h2.book-title= book.title
+              p.book-info Editora: #{book.publisher || 'Não informada'}
+              p.book-info Ano: #{book.year || 'Não informado'}
