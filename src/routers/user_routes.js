@@ -11,7 +11,7 @@ router.get('/', authMiddleware, checkRole('admin'), UserController.getAll);
 router.get('/:id', authMiddleware, checkRole('admin'), UserController.getById);
 
 router.post('/', userValidationRules, UserController.create);
-router.put('/:id', authMiddleware, userValidationRules, UserController.update);
+router.put('/:id', authMiddleware, UserController.update);
 
 router.delete('/:id', authMiddleware, UserController.delete);
 

@@ -25,8 +25,26 @@ class UserLibraryRepository {
         const db = getDB();
         const collection = db.collection('userlibrary');
 
-        const userBooks = await collection.find({ userId: new ObjectId(userId) }).toArray();
+        const userBooks = await collection.aggregate([
+            {$match: { userId: new ObjectId(userId) }},
 
+            {
+                $lookup: {
+                    from: 'books',
+                    localField: 'bookId',
+                    foreignField: '_id',
+                    as: 'bookDetails'
+                }
+            },
+
+            {
+                $unwind: {
+                    path: '$bookDetails',
+                    preserveNullAndEmptyArrays: true
+                }
+            }
+        ]).toArray();
+        
         return userBooks;
     }
 

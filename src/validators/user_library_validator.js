@@ -7,7 +7,7 @@ export const libraryValidationRules = [
         .isMongoId().withMessage("Formato de ID inválido"),
 
     body('bookLink')
-        .optional()
+        .optional({ checkFalsy: true })
         .isURL().withMessage("O link para o livro deve ser uma URL válida"),
 
     verifyErrors

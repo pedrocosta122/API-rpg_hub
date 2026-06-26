@@ -6,6 +6,8 @@ class UserLibraryDTO {
 
         this.bookLink = libraryEntry.bookLink;
         this.campaignNotes = libraryEntry.campaignNotes;
+
+        this.book = libraryEntry.bookDetails || null;
     }
 }
 

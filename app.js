@@ -1,6 +1,9 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import swaggerUi from 'swagger-ui-express';
+import fs from 'fs';
+import cors from 'cors';
 
 import WebController from './src/controllers/web_controller.js';
 
@@ -13,9 +16,6 @@ import userLibraryRoutes from './src/routers/user_library_routes.js';
 import { globalErrorHandler } from './src/middlewares/error_middleware.js';
 import logger from './src/middlewares/logger_middleware.js';
 
-import swaggerUi from 'swagger-ui-express';
-import fs from 'fs';
-
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,6 +27,9 @@ const swaggerDocument = JSON.parse(
 const app = express();
 
 app.use(logger);
+
+app.use(cors());
+
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 

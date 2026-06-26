@@ -13,7 +13,7 @@ router.get('/', BookController.getAll);
 router.get('/:id', BookController.getById);
 
 router.post('/', authMiddleware, bookValidationRules , BookController.create);
-router.put('/:id', authMiddleware, bookValidationRules, BookController.update);
+router.put('/:id', authMiddleware, BookController.update);
 router.delete('/:id', authMiddleware, BookController.delete);
 
 export default router;
