@@ -13,6 +13,6 @@ router.get('/:id', authMiddleware, checkRole('admin'), UserController.getById);
 router.post('/', userValidationRules, UserController.create);
 router.put('/:id', authMiddleware, UserController.update);
 
-router.delete('/:id', authMiddleware, UserController.delete);
+router.delete('/:id', authMiddleware, checkRole('admin'), UserController.delete);
 
 export default router;

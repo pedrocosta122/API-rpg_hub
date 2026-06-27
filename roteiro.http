@@ -1,0 +1,82 @@
+# --- CONFIGURAÇÃO ---
+@baseUrl = http://localhost:3000
+
+@token = SEU_TOKEN_AQUI
+@tokenAdmin = SEU_TOKEN_ADMIN_AQUI
+
+### --- 1. REGISTER ERRO (erro ao criar usuário) ---
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+    "name": "",
+    "email": "",
+    "password": ""
+}
+
+### --- 2. REGISTER (criar usuário) ---
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+    "name": "teste",
+    "email": "teste@email.com",
+    "password": "123456"
+}
+
+### --- 3. LOGIN (Para obter o token) ---
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "teste@email.com",
+    "password": "123456"
+}
+
+### --- 4. LISTAR CATÁLOGO (sistemas disponíveis) ---
+GET {{baseUrl}}/api/books
+
+### --- 5. LISTAR USUÁRIOS (Erro de permissão) ---
+GET {{baseUrl}}/api/users
+Authorization: Bearer {{token}}
+
+
+### --- 6. LISTAR USUÁRIOS (Rota Admin) ---
+GET {{baseUrl}}/api/users
+Authorization: Bearer {{tokenAdmin}}
+
+
+### --- 7. LISTAR LIVROS DA BIBLIOTECA ---
+GET {{baseUrl}}/api/library
+Authorization: Bearer {{token}}
+
+### --- 8. ADICIONAR LIVRO À BIBLIOTECA ---
+POST {{baseUrl}}/api/library
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "bookId": "6a3c8c1b21b71c7ecc359fbc",
+    "campaignNotes": "teste"
+}
+
+### --- 9. ATUALIZAR LIVRO NA BIBLIOTECA ---
+PUT {{baseUrl}}/api/library/6a402aca3ea4d79265310f84
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "campaignNotes": "notas atualizadas para o teste"
+}
+
+### --- 10. REMOVER LIVRO DA BIBLIOTECA ---
+DELETE {{baseUrl}}/api/library/6a402aca3ea4d79265310f84
+Authorization: Bearer {{token}}
+
+### --- 11. ERRO DELETAR USUÁRIO (erro de permissão) ---
+DELETE {{baseUrl}}/api/users/6a402bdd778485194ac0d531
+Authorization: Bearer {{token}}
+
+### --- 12. DELETAR USUÁRIO ---
+DELETE {{baseUrl}}/api/users/6a402bdd778485194ac0d531
+Authorization: Bearer {{tokenAdmin}}

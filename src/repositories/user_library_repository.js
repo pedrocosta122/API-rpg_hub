@@ -89,6 +89,15 @@ class UserLibraryRepository {
 
         return result.deletedCount > 0;
     }
+
+    static async clearLibrary(userId) {
+        const db = getDB();
+        const collection = db.collection('userlibrary');
+
+        const result = await collection.deleteMany({ userId: new ObjectId(userId) });
+
+        return true;
+    }
 }
 
 export default UserLibraryRepository;

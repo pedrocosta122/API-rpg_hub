@@ -1,4 +1,6 @@
 import UserRepository from "../repositories/user_repository.js";
+import UserLibraryRepository from "../repositories/user_library_repository.js";
+
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
@@ -80,6 +82,15 @@ class UserService {
     }
 
     static async deleteUser(id) {
+        const isLibraryClear = await UserLibraryRepository.clearLibrary(id);
+
+        if(!isLibraryClear) {
+            const error = new Error('Incapaz de deletar, a biblioteca não pôde ser limpa');
+
+            error.statusCode = 500;
+            throw error;
+        }
+
         const isDeleted = await UserRepository.delete(id);
 
         if(!isDeleted) {
